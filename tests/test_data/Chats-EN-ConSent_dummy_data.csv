@@ -1,0 +1,65 @@
+,timestamp,username,text,dialog_id,L1,L2C
+35,2040-01-01 17:48:23,Student-1,hi,6050ef,OFF,NOS
+36,2040-01-01 17:49:45,Student-2,hii mate,6050ef,OFF,NOS
+37,2040-01-01 17:52:43,Student-2,how are you?,6050ef,OFF,NOS
+38,2040-01-01 17:53:22,Student-1,yo,6050ef,OFF,NOS
+39,2040-01-01 17:54:22,Student-1,and you?,6050ef,OFF,NOS
+40,2040-01-01 17:54:55,Student-2,goodd,6050ef,OFF,NOS
+41,2040-01-01 17:59:11,Student-3,hiiii,6050ef,OFF,NOS
+42,2040-01-01 17:59:29,Student-2,haha hi you,6050ef,OFF,NOS
+43,2040-01-01 17:59:34,Student-3,guysss,6050ef,OFF,NOS
+44,2040-01-01 17:59:36,Student-3,hiii,6050ef,OFF,NOS
+45,2040-01-01 18:00:11,Student-1,hi,6050ef,OFF,NOS
+46,2040-01-01 18:02:22,Student-1,what do you think the first qustion is about",6050ef,DOM,AI
+47,2040-01-02 17:11:18,Student-1,?,6050ef,DOM,AI
+48,2040-01-02 17:11:46,Student-2,we should look at it,6050ef,COO,IN
+49,2040-01-02 17:12:15,Student-3,agree,6050ef,COO,IN
+50,2040-01-02 17:12:19,Student-2,"hmm, it might be because of that theory",6050ef,DOM,AR
+51,2040-01-02 17:13:12,Student-2,?*,6050ef,DOM,AI
+52,2040-01-02 17:13:35,Student-3,yess,6050ef,DOM,IN
+53,2040-01-02 17:14:33,Student-2,depending on several factors,6050ef,DOM,AR
+85,2040-01-01 17:48:23,Student-1,hi,7050ef,OFF,NOS
+86,2040-01-01 17:49:45,Student-2,hii mate,7050ef,OFF,NOS
+87,2040-01-01 17:52:43,Student-2,how are you?,7050ef,OFF,NOS
+88,2040-01-01 17:53:22,Student-1,yo,7050ef,OFF,NOS
+89,2040-01-01 17:54:22,Student-1,and you?,7050ef,OFF,NOS
+90,2040-01-01 17:54:55,Student-2,goodd,7050ef,OFF,NOS
+91,2040-01-01 17:59:11,Student-3,hiiii,7050ef,OFF,NOS
+92,2040-01-01 17:59:29,Student-2,haha hi you,7050ef,OFF,NOS
+93,2040-01-01 17:59:34,Student-3,guysss,7050ef,OFF,NOS
+94,2040-01-01 17:59:36,Student-3,hiii,7050ef,OFF,NOS
+95,2040-01-01 18:00:11,Student-1,hi,7050ef,OFF,NOS
+96,2040-01-01 18:02:22,Student-1,what do you think the first qustion is about",7050ef,DOM,AI
+97,2040-01-02 17:11:18,Student-1,?,7050ef,DOM,AI
+98,2040-01-02 17:11:46,Student-2,we should look at it,7050ef,COO,IN
+99,2040-01-02 17:12:15,Student-3,agree,6050ef,COO,IN
+100,2040-01-02 17:12:19,Student-2,"hmm, it might be because of that theory",7050ef,DOM,AR
+101,2040-01-02 17:13:12,Student-2,?*,7050ef,DOM,AI
+102,2040-01-02 17:13:35,Student-3,yess,7050ef,DOM,IN
+103,2040-01-02 17:14:33,Student-2,depending on several factors,7050ef,DOM,AR
+217,2021-03-16 17:51:56,Student-1,hoi,4dd7a7,OFF,NOS
+218,2021-03-16 17:51:59,Student-2,hello mate,4dd7a7,OFF,NOS
+219,2021-03-16 17:52:02,Student-2,wasup,4dd7a7,OFF,NOS
+220,2021-03-16 17:52:09,Student-1,wasuuuuup,4dd7a7,OFF,NOS
+221,2021-03-16 18:00:01,Student-2,i finished reading,4dd7a7,COO,IN
+222,2021-03-16 18:14:46,Student-2,"i think we have to look in the material which element is better",4dd7a7,COO,AR
+223,2021-03-16 18:15:35,Student-1,"but we have to which element has more mass",4dd7a7,DOM,AR
+224,2021-03-16 18:15:46,Student-1,no,4dd7a7,DOM,IN
+225,2021-03-16 18:16:14,Student-2,true,4dd7a7,DOM,IN
+226,2021-03-16 18:16:17,Student-2,okay,4dd7a7,DOM,IN
+227,2021-03-16 18:16:26,Student-1,top!,4dd7a7,DOM,IN
+228,2021-03-16 18:16:28,Student-2,lets think then,4dd7a7,COO,AM
+229,2021-03-18 17:12:45,Student-2,i think water is less dense than oil,4dd7a7,DOM,AR
+317,2021-03-16 17:51:56,Student-1,hoi,5dd7a7,OFF,NOS
+318,2021-03-16 17:51:59,Student-2,hello mate,5dd7a7,OFF,NOS
+319,2021-03-16 17:52:02,Student-2,wasup,5dd7a7,OFF,NOS
+320,2021-03-16 17:52:09,Student-1,wasuuuuup,5dd7a7,OFF,NOS
+321,2021-03-16 18:00:01,Student-2,i finished reading,5dd7a7,COO,IN
+322,2021-03-16 18:14:46,Student-2,"i think we have to look in the material which element is better",5dd7a7,COO,AR
+323,2021-03-16 18:15:35,Student-1,"but we have to which element has more mass",5dd7a7,DOM,AR
+324,2021-03-16 18:15:46,Student-1,no,5dd7a7,DOM,IN
+325,2021-03-16 18:16:14,Student-2,true,5dd7a7,DOM,IN
+326,2021-03-16 18:16:17,Student-2,okay,5dd7a7,DOM,IN
+327,2021-03-16 18:16:26,Student-1,top!,5dd7a7,DOM,IN
+328,2021-03-16 18:16:28,Student-2,lets think then,5dd7a7,COO,AM
+329,2021-03-18 17:12:45,Student-2,i think water is less dense than oil,5dd7a7,DOM,AR

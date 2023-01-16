@@ -1,0 +1,19 @@
+{
+    "dataset_name": "Chats-EN-ConSent_dummy_data",
+    "code_name": "L1",
+    "codes": [
+        "OFF",
+        "COO",
+        "DOM"
+    ],
+    "default_code": "OFF",
+    "language_featurizer": "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3",
+    "sent_hl_units": 10,
+    "sent_dropout": 0.5,
+    "consent_hl_units": 5,
+    "lags": 2,
+    "max_epochs": 5,
+    "callback_patience": 5,
+    "learning_rate": 1e-3,
+    "batch_size": 512
+}

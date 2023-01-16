@@ -1,0 +1,12 @@
+fire
+tqdm
+openpyxl
+pandas
+scikit-learn
+matplotlib
+seaborn
+tensorflow==2.5.0
+tensorflow-text==2.5.0
+tensorflow-hub
+tensorflow_addons
+wandb==0.12.11
