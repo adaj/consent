@@ -1,6 +1,6 @@
 # ConSent
 
-ConSent lets you train, evaluate and use deep learning models to classify chat dialogues, i.e., sequences of text that contains meta information such as *group*, *username*, *text*, *timestamp*, and a *code* or set of labels you are interested in. The use case in which ConSent was designed consists of classifying student chats, from different dialogues (group), according to a coding scheme. The data must be coded with high reliability (*k*>0.7) before you use ConSent. To start training a model, we suggest at least 5k coded messages to (hopefully) achieve moderate to high reliability.
+ConSent lets you train, evaluate and use deep learning models to classify chat dialogues, i.e., sequences of text that contains meta information such as *group*, *username*, *text*, *timestamp*, and a *code* or set of labels you are interested in. The use case in which ConSent was designed consists of classifying student chats according to a coding scheme. The data must be coded with high reliability (*k*>0.7) before you use ConSent. To start training a model, we suggest at least 5k coded messages to (hopefully) achieve moderate to high reliability.
 
  > ConSent is currently compatible with Keras, Tensorflow 2.5, and TensorFlow Hub.
 
