@@ -1,8 +1,8 @@
 # ConSent
 
-ConSent lets you train, evaluate and use deep learning models to classify chat dialogues, i.e., sequences of text that contains meta information such as *group*, *username*, *text*, *timestamp*, and a *code* or set of labels you are interested in. The use case in which ConSent was designed consists of classifying student chats according to a coding scheme. The data must be coded with high reliability (*k*>0.7) before you use ConSent. To start training a model, we suggest at least 5k coded messages to (hopefully) achieve moderate to high reliability.
+ConSent lets you train, evaluate and use deep learning models to classify chat dialogues, i.e., sequences of text that contains meta information such as *group*, *username*, *text*, *timestamp*, and a *code* or set of labels you are interested in. The use case in which ConSent was designed consists of classifying student chats according to a coding scheme. The data must be coded with high reliability (*k*>0.7) before you use ConSent. To start training a model, we suggest at least 5k coded messages to (hopefully) achieve satisfactory reliability to your use case.
 
- > ConSent is currently compatible with Keras, Tensorflow 2.5, and TensorFlow Hub.
+ > ConSent is currently compatible with Python 3.9, Keras-Tensorflow 2.5, and TensorFlow Hub.
 
 Below is the neural network we are initially using. We separate contextual information and sentence encoding features in two branches. The contextual information are auxiliary features that might help describe the situation of chat message at hand. We chose to use only binary auxiliary features because we expect that the network weights will be more easily optimized when inputs oscilate in a similar way. Here, the sentence encoder can be any pretrained language model capable of extracting embeddings. This way, we benefit from the increasingly high potential of transfer learning to NLP tasks to produce more reliable estimates. This architecture might benefit from changes for better results.
 
