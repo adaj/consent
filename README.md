@@ -4,11 +4,9 @@ ConSent lets you train, evaluate and use deep learning models to classify chat d
 
  > ConSent is currently compatible with Python 3.9, Keras-Tensorflow 2.5, and TensorFlow Hub.
 
-Below is the neural network we are initially using. We separate contextual information and sentence encoding features in two branches. The contextual information are auxiliary features that might help describe the situation of chat message at hand. We chose to use only binary auxiliary features because we expect that the network weights will be more easily optimized when inputs oscilate in a similar way. Here, the sentence encoder can be any pretrained language model capable of extracting embeddings. This way, we benefit from the increasingly high potential of transfer learning to NLP tasks to produce more reliable estimates. This architecture might benefit from changes for better results.
+Below is the neural network we are initially using. We separate contextual information and sentence encoding features in two branches. The contextual information are auxiliary features that might help describe the situation of chat message at hand. We chose to use only binary auxiliary features because we expect that the network weights will be more easily optimized when inputs oscilate in a similar way. Here, the sentence encoder can be any pretrained language model capable of extracting embeddings. This way, we benefit from the increasingly high potential of transfer learning to NLP tasks to produce more reliable estimates. If you want to improve the performance of your ConSent model, as mentioned in [our paper](https://doi.org/10.1016/j.caeai.2023.100123), a model-centric improvement would involve, for example, testing a different sentence encoder or adding other auxiliary features. But also, data-centric improvements could be valuable, by correcting some bad labels in your data.
 
-<img src="https://drive.google.com/uc?id=1aGcFBylS-KJjyrVMPG0JxBOrjTGExQLF" width="500">
-
-As mentioned in [our paper](https://doi.org/10.1016/j.caeai.2023.100123), a model-centric improvement to ConSent would involve, for example, adding more auxiliary features. But also, data-centric improvements could be valuable, by correcting some bad labels in your data.
+<img src="https://drive.google.com/uc?id=1HgqJrSufGw7m7CftNmvA8vFLT1BXQR0v" width="500">
 
 
 ## Installation
