@@ -21,8 +21,8 @@ ConSent is not on PyPi. You can easily install it by cloning the repository to y
 ```
 git clone https://github.com/adaj/consent.git
 cd consent
-pip install --user -r requirements.txt 
-pip install --user .
+pip install -r requirements.txt 
+pip install .
 ```
 
 To use ConSent, create a new .py (or .ipynb) file.
