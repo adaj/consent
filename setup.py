@@ -5,7 +5,7 @@ setup(
     version='0.1.4',
     description='Automated coding of chats using contextual information and sentence encoding',
     author='Adelson de Araujo',
-    license='GPL-3.0',
+    license='MIT',
     long_description_content_type='text/markdown',
     long_description=open('README.md').read(),
     packages=['consent'],

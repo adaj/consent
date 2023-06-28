@@ -11,3 +11,4 @@ wandb
 examples/archive
 */experimental.py
 docs
+build

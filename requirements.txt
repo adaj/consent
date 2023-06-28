@@ -5,6 +5,7 @@ pandas
 scikit-learn
 matplotlib
 seaborn
+pydantic==1.9
 tensorflow==2.5.0
 tensorflow-text==2.5.0
 tensorflow-hub

@@ -35,7 +35,10 @@ SUPPORTED_LANGUAGE_FEATURIZERS = [
     'https://tfhub.dev/google/universal-sentence-encoder-multilingual/3',
     'https://tfhub.dev/tensorflow/bert_multi_cased_L-12_H-768_A-12/4',
     'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
-    'sentence-transformers/LaBSE'
+    'sentence-transformers/LaBSE',
+    'https://tfhub.dev/google/LEALLA/LEALLA-small/1',
+    'https://tfhub.dev/google/LEALLA/LEALLA-base/1',
+    'https://tfhub.dev/google/LEALLA/LEALLA-large/1'
 ]
 
 HYPERPARAMETERS  = [
@@ -84,7 +87,7 @@ class Config(BaseModel):
       'augmentation', 'n_samples', 'max_epochs', 'callback_patience',
       'learning_rate', 'batch_size'
     ]
-    architecture: str = "consent==0.3"
+    architecture: str = "consent==0.1.4"
     caller: str = "train"
     datasets: List[str] = []
     dataset_name: str
@@ -216,11 +219,6 @@ class ConSent:
                                      output_key="word_embeddings")(text_input)
             encoder = tf.keras.layers.GlobalAveragePooling1D()(encoder)
         elif language_featurizer == \
-          'https://tfhub.dev/google/universal-sentence-encoder-multilingual/3':
-            encoder = hub.KerasLayer(language_featurizer,
-                                     trainable=False,
-                                     name="sent_encoder")(text_input)
-        elif language_featurizer == \
             'https://tfhub.dev/tensorflow/bert_multi_cased_L-12_H-768_A-12/4':
             preprocessor = hub.KerasLayer(
                 "https://tfhub.dev/tensorflow/bert_multi_cased_preprocess/3")
@@ -240,6 +238,10 @@ class ConSent:
                 layer.trainable=False
                 for w in layer.weights: w._trainable=False
             encoder = SBert(tokenizer, model)(text_input)
+        else:
+            encoder = hub.KerasLayer(language_featurizer,
+                                     trainable=False,
+                                     name="sent_encoder")(text_input)
 
         # sent Dense hidden layer 1
         sent_hl = tf.keras.layers.Dense(sent_hl_units,
