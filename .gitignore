@@ -5,10 +5,11 @@ __pycache__
 *.xlsx
 .vscode
 models
-experimental
+experimental/archive
 evaluation
 wandb
 examples/archive
 */experimental.py
 docs
 build
+*.env

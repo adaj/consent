@@ -1,0 +1,20 @@
+{
+  "dataset_name": "Chats-NL-TW1ST_circuits+Chats-PT-Radiation",
+  "code_name": "L1",
+  "codes": [
+    "OFF",
+    "COO",
+    "DOM"
+  ],
+  "default_code": "OFF",
+  "wandb_project": "consent-dev",
+  "language_featurizer": "https://tfhub.dev/google/LEALLA/LEALLA-base/1",
+  "sent_hl_units": 256,
+  "sent_dropout": 0.2,
+  "consent_hl_units": 32,
+  "lags": 7,
+  "max_epochs": 250,
+  "callback_patience": 10,
+  "learning_rate": 1e-4,
+  "batch_size": 256
+}
