@@ -1,0 +1,25 @@
+{
+  "dataset_name": "test_data",
+  "code_name": "L1",
+  "codes": ["OFF", "COO", "DOM"],
+  "default_code": "OFF",
+  "load_model": false,
+  "language_featurizer": [
+      "https://tfhub.dev/google/wiki40b-lm-multilingual-64k/1",
+      "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
+  ],
+  "sent_hl_units": [
+      50, 100
+  ],
+  "consent_hl_units": [
+      5, 10
+  ],
+  "lags": [
+      3, 7
+  ],
+  "augmentation": false,
+  "max_epochs": 5,
+  "callback_patience": 5,
+  "learning_rate": [1e-3, 1e4],
+  "batch_size": [64, 512]
+}

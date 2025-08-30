@@ -35,6 +35,8 @@ def train_test_split(data_df: pd.DataFrame,
 
 
 def train_val_sampler(texts, contexts, labels,
+                      contextual_size: int,
+                      output_size: int,
                       limit_training_samples: int = -1,
                       val_size: float = 0.1,
                       batch_size: int = 64,
@@ -54,12 +56,17 @@ def train_val_sampler(texts, contexts, labels,
         for t, c, l in zip(texts_inputs, contexts_inputs, labels_outputs):
             yield {"text_input": t, "con_input": c}, \
                   {"sent_output": l, "consent_output": l}
-    output_types = ({"text_input": tf.string, "con_input": np.float32},
-                    {"sent_output": np.float32, "consent_output": tf.float32})
+
+    output_signature = (
+        {"text_input": tf.TensorSpec(shape=(), dtype=tf.string),
+         "con_input": tf.TensorSpec(shape=(contextual_size,), dtype=tf.float32)},
+        {"sent_output": tf.TensorSpec(shape=(output_size,), dtype=tf.float32),
+         "consent_output": tf.TensorSpec(shape=(output_size,), dtype=tf.float32)}
+    )
 
     dataset = tf.data.Dataset.from_generator(
         data_generator,
-        output_types=output_types,
+        output_signature=output_signature,
         args=[texts[ix], contexts[ix], labels[ix]]
     )
     val_dataset = dataset.take(val_size).batch(batch_size)
