@@ -20,6 +20,7 @@ import wandb
 from wandb.keras import WandbCallback
 
 import consent.utils as utils
+from consent.openai_encoder import OpenAIEncoder
 
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -37,7 +38,8 @@ SUPPORTED_LANGUAGE_FEATURIZERS = [
     'sentence-transformers/LaBSE',
     'https://tfhub.dev/google/LEALLA/LEALLA-small/1',
     'https://tfhub.dev/google/LEALLA/LEALLA-base/1',
-    'https://tfhub.dev/google/LEALLA/LEALLA-large/1'
+    'https://tfhub.dev/google/LEALLA/LEALLA-large/1',
+    'openai'
 ]
 
 HYPERPARAMETERS  = [
@@ -213,7 +215,8 @@ class ConSent:
         consent_hl_units: int
     ):
         # Ensure language_featurizer is compatible with current implementation
-        assert language_featurizer in SUPPORTED_LANGUAGE_FEATURIZERS, \
+        is_openai = language_featurizer.startswith('openai/')
+        assert is_openai or language_featurizer in SUPPORTED_LANGUAGE_FEATURIZERS, \
                 "`language_featurizer` not supported " + \
                 f"(available: {SUPPORTED_LANGUAGE_FEATURIZERS})."
 
@@ -254,6 +257,10 @@ class ConSent:
                 layer.trainable=False
                 for w in layer.weights: w._trainable=False
             encoder = SBert(tokenizer, model)(text_input)
+        elif is_openai:
+            assert os.environ.get("OPENAI_API_KEY"), "OPENAI_API_KEY not set"
+            model_name = language_featurizer.split('openai/')[-1]
+            encoder = OpenAIEncoder(model_name, name="sent_encoder")(text_input)
         else:
             encoder = HubWrapper(language_featurizer, name="sent_encoder")(text_input)
 
@@ -287,6 +294,7 @@ class ConSent:
 
         return tf.keras.Model(inputs=[text_input, con_input],
                               outputs=[sent_output, consent_output])
+
 
 
     def prepare_inputs(self, dialog_data: pd.DataFrame):

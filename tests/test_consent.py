@@ -2,7 +2,9 @@ import os
 import time
 import json
 import unittest
+from unittest.mock import patch, MagicMock
 import pandas as pd
+import numpy as np
 
 from consent import Config, ConSent
 import consent.utils as utils
@@ -11,7 +13,7 @@ import consent.utils as utils
 class TestConSent(unittest.TestCase):
 
     def setUp(self):
-        self.data_df = pd.read_csv(\
+        self.data_df = pd.read_csv(
             "tests/test_data/Chats-EN-ConSent_dummy_data.csv")
         self.data_df = self.data_df.drop(columns=['Unnamed: 0'])
         self.data_df = self.data_df.rename(columns={
@@ -71,7 +73,44 @@ class TestConSent(unittest.TestCase):
 
         print("\n\nGenerating 'sent' and 'consent' predictions using consent.predict_proba()...\n ", pred_message)
 
-        
+    @patch('consent.openai_encoder.openai.OpenAI')
+    def test_train_with_openai_featurizer(self, mock_openai_class):
+        # Mock the OpenAI client and its response
+        mock_client = MagicMock()
+        mock_embedding = MagicMock()
+        mock_embedding.embedding = np.random.rand(1536).tolist()  # text-embedding-3-small dimension
+        mock_response = MagicMock()
+        mock_response.data = [mock_embedding]
+        mock_client.embeddings.create.return_value = mock_response
+        mock_openai_class.return_value = mock_client
+
+        # Set a dummy API key
+        os.environ['OPENAI_API_KEY'] = 'test_key'
+
+        # Define config
+        config = Config(**{
+            "dataset_name": "Chats-EN-ConSent_dummy_data",
+            "code_name": "L1",
+            "codes": ["OFF", "COO", "DOM"],
+            "default_code": "OFF",
+            "language_featurizer": "openai/text-embedding-3-small",
+            "sent_hl_units": 10,
+            "sent_dropout": 0.5,
+            "consent_hl_units": 5,
+            "lags": 2,
+            "max_epochs": 1,
+            "callback_patience": 1,
+            "learning_rate": 1e-3,
+            "batch_size": 32})
+
+        # Initialize and train
+        consent_model = ConSent(config)
+        consent_model.train(self.data_df.head(10))
+
+        # Check if the mock was called
+        self.assertTrue(mock_client.embeddings.create.called)
+
 
 if __name__ == '__main__':
     unittest.main()
+
