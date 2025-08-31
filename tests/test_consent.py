@@ -12,8 +12,8 @@ class TestConSent(unittest.TestCase):
 
     def setUp(self):
         self.data_df = pd.read_csv(\
-            "tests/test_data/Chats-EN-ConSent_dummy_data.csv",
-            index_col=0)
+            "tests/test_data/Chats-EN-ConSent_dummy_data.csv")
+        self.data_df = self.data_df.drop(columns=['Unnamed: 0'])
         self.data_df = self.data_df.rename(columns={
             'L1': 'code'}
         )
@@ -40,27 +40,28 @@ class TestConSent(unittest.TestCase):
             "max_epochs": 5,
             "callback_patience": 5,
             "learning_rate": 1e-3,
-            "batch_size": 512})
+            "batch_size": 32})
 
         # Initialize, train, and test
         self.consent = ConSent(config)
 
         print("\n\nTraining a model with consent.train...\n")
         self.consent.train(train_data_df)
-        preds = test_data_df\
-                    .groupby('dialog_id')\
-                    .apply(self.consent.predict_sequence)
+        preds = test_data_df.groupby('dialog_id').apply(
+            lambda group: self.consent.predict_sequence(group.name, group),
+            include_groups=False
+        )
 
         print("\n\nGenerating predictions using df.groupby().apply()...\n", preds.values)
 
         # Testing inference with predict_sequence() on yet other dummy data
-        preds_dummy = self.consent.predict_sequence([
+        preds_dummy = self.consent.predict_sequence('4935ab', pd.DataFrame([
             {'dialog_id': '4935ab', 'username': 'Bart', 'text': 'hoi'},
             {'dialog_id': '4935ab', 'username': 'Bart', 'text': 'what we have to do?'},
             {'dialog_id': '4935ab', 'username': 'Milhouse', 'text': 'I think we need to wait'},
             {'dialog_id': '4935ab', 'username': 'Milhouse', 'text': 'or study the first question'},
             {'dialog_id': '4935ab', 'username': 'Bart', 'text': 'yes what is the frequency?'},
-            {'dialog_id': '4935ab', 'username': 'Milhouse', 'text': 'I think 0.5'}])
+            {'dialog_id': '4935ab', 'username': 'Milhouse', 'text': 'I think 0.5'}]))
 
         print("\n\nGenerating predictions using consent.predict_sequence()...\n ", preds_dummy)
 
