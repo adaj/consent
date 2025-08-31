@@ -12,7 +12,7 @@ examples/archive
 */experimental.py
 docs
 build
-
+.env
 # gemini-cli settings
 .gemini/
 # GitHub App credentials
