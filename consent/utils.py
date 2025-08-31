@@ -7,9 +7,9 @@ import tensorflow as tf
 
 def load_data(file_path, code_name):
     try:
-        data_df = pd.read_csv(file_path, index_col=0)
+        data_df = pd.read_csv(file_path)
     except:
-        data_df = pd.read_csv(file_path, index_col=0, sep='|')
+        data_df = pd.read_csv(file_path, sep='|')
 
     # Requires columns = username, text/message, group/dialog_id, <code>
     data_df = data_df.rename(columns={
@@ -29,6 +29,7 @@ def train_test_split(data_df: pd.DataFrame,
     np.random.seed(random_state)
     test_groups = int(data_df['dialog_id'].nunique() * test_size)
     test_groups = np.random.choice(data_df['dialog_id'].unique(), test_groups)
+    print(f"train_test_split: test_groups = {test_groups}") # Added print statement
     train = data_df.loc[~data_df['dialog_id'].isin(test_groups)]
     test = data_df.loc[data_df['dialog_id'].isin(test_groups)]
     return train, test

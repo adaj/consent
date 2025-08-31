@@ -1,0 +1,5 @@
+dialog_id,username,text,code,timestamp
+dialog_1,user_a,hello,A,2023-01-01
+dialog_1,user_b,hi there,B,2023-01-01
+dialog_2,user_a,how are you,C,2023-01-02
+dialog_2,user_b,fine thanks,A,2023-01-02

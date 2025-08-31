@@ -189,8 +189,7 @@ class Handler:
             # generate predictions
             predictions = test_data.groupby('dialog_id')\
                                            .apply(consent.predict_sequence)
-            results = pd.concat(predictions.apply(pd.DataFrame).values)\
-                        .reset_index()
+            results = predictions.reset_index()
             consent.cache = {} # clear cache for the next model
             # Evaluation metrics
             m = self.compute_metrics(results['code'],
