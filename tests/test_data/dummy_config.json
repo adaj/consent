@@ -1,0 +1,15 @@
+{
+    "dataset_name": "dummy_dataset",
+    "code_name": "code",
+    "codes": ["A", "B", "C"],
+    "default_code": "A",
+    "language_featurizer": "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3",
+    "sent_hl_units": 10,
+    "sent_dropout": 0.5,
+    "consent_hl_units": 5,
+    "lags": 2,
+    "max_epochs": 1,
+    "callback_patience": 1,
+    "learning_rate": 0.001,
+    "batch_size": 32
+}
