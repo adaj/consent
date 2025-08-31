@@ -1,0 +1,22 @@
+{
+    "wandb_project": "consent-transactivity",
+    "dataset_name": "Chats-EN-TransactivityRegulation",
+    "code_name": "Transactivity",
+    "codes": [
+        "QC",
+        "ELI",
+        "EXT",
+        "CON",
+        "INT"
+    ],
+    "default_code": "QC",
+    "language_featurizer": "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3",
+    "sent_hl_units": 32,
+    "sent_dropout": 0.5,
+    "consent_hl_units": 5,
+    "lags": 7,
+    "max_epochs": 500,
+    "callback_patience": 30,
+    "learning_rate": 3e-5,
+    "batch_size": 128
+}

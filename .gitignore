@@ -12,3 +12,8 @@ examples/archive
 */experimental.py
 docs
 build
+
+# gemini-cli settings
+.gemini/
+# GitHub App credentials
+gha-creds-*.json

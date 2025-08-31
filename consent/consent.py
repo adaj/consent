@@ -16,7 +16,6 @@ from sklearn.preprocessing import OneHotEncoder
 import tensorflow as tf
 import tensorflow_text
 import tensorflow_hub as hub
-import tensorflow_addons as tfa
 import wandb
 from wandb.keras import WandbCallback
 
@@ -107,7 +106,7 @@ class Config(BaseModel):
     max_epochs: int = 50
     callback_patience: int = 10
     learning_rate: Union[float, List[float]] = 1e-3
-    batch_size: Union[int, List[int]] = 256
+    batch_size: Union[int, List[int]] = 128
 
     def __str__(self):
         return json.dumps({key:value \
@@ -138,6 +137,21 @@ class ContextualInformation(BaseModel):
     previous_codes: List[str]
 
 
+class HubWrapper(tf.keras.layers.Layer):
+    def __init__(self, featurizer_url, **kwargs):
+        super(HubWrapper, self).__init__(**kwargs)
+        self.hub_layer = hub.KerasLayer(featurizer_url, trainable=False)
+
+    def call(self, inputs):
+        return self.hub_layer(inputs)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            "featurizer_url": self.hub_layer.handle
+        })
+        return config
+
 class ConSent:
     """
     ConSent model interface.
@@ -164,7 +178,7 @@ class ConSent:
                  extra_callbacks: Union[List, None] = None):
         if config is None:
             if load is False:
-                raise ValueError("It should be provided either a new `config`"+\
+                raise ValueError("It should be provided either a new `config`"+
                                  "object or `load` a pretrained model.")
             else:
                 with open(os.path.join(load, "config.json"), 'r') as f:
@@ -176,7 +190,7 @@ class ConSent:
         self.random_state = random_state
         if load:
             assert os.path.isdir(load), "Trained model was not found."
-            self.model = tf.keras.models.load_model(load)
+            self.model = tf.keras.models.load_model(load, custom_objects={'HubWrapper': HubWrapper})
         else:
             self.model = None
         # Prepare inputs and labels
@@ -189,13 +203,15 @@ class ConSent:
     def __repr__(self):
         return f"consent.ConSent(model={self.model})"
 
-    def make_model(self,
-                   contextual_size: int,
-                   output_size: int,
-                   language_featurizer: str,
-                   sent_hl_units: int,
-                   sent_dropout: float,
-                   consent_hl_units: int):
+    def make_model(
+        self,
+        contextual_size: int,
+        output_size: int,
+        language_featurizer: str,
+        sent_hl_units: int,
+        sent_dropout: float,
+        consent_hl_units: int
+    ):
         # Ensure language_featurizer is compatible with current implementation
         assert language_featurizer in SUPPORTED_LANGUAGE_FEATURIZERS, \
                 "`language_featurizer` not supported " + \
@@ -239,9 +255,7 @@ class ConSent:
                 for w in layer.weights: w._trainable=False
             encoder = SBert(tokenizer, model)(text_input)
         else:
-            encoder = hub.KerasLayer(language_featurizer,
-                                     trainable=False,
-                                     name="sent_encoder")(text_input)
+            encoder = HubWrapper(language_featurizer, name="sent_encoder")(text_input)
 
         # sent Dense hidden layer 1
         sent_hl = tf.keras.layers.Dense(sent_hl_units,
@@ -283,10 +297,10 @@ class ConSent:
         texts = dialog_data['text'].values.astype(str)
         contexts = np.concatenate([
             # 1. Contains question mark?
-            dialog_data['text'].apply(lambda x: ('?' in x))\
+            dialog_data['text'].apply(lambda x: ('?' in x))
                 .astype(int).values.reshape(-1,1),
             # 2. It's from the same user?
-            (dialog_data['username']==dialog_data['username'].shift())\
+            (dialog_data['username']==dialog_data['username'].shift())
                 .astype(int).values.reshape(-1,1),
             # 3. What were the (predicted) previous codes?
             self.extract_previous_codes_by_dialog_id(dialog_data)
@@ -294,7 +308,7 @@ class ConSent:
         return texts, contexts
 
 
-    def extract_previous_codes_by_dialog_id(self,
+    def extract_previous_codes_by_dialog_id(self, 
                                             dialog_data: pd.DataFrame):
         """
         Extracts the previous codes of all previous codes in all dialog_ids
@@ -311,7 +325,7 @@ class ConSent:
                                     .apply(lambda x: extract_lags(
                                         labels=x['code'],
                                         default_code=self.config.default_code,
-                                        lags=self.config.lags))\
+                                        lags=self.config.lags), include_groups=False)\
                                     .apply(self.onehot_encode, axis=1)\
                                     .apply(np.ravel)
         return np.stack(previous_codes)
@@ -326,7 +340,8 @@ class ConSent:
                    .toarray()
 
 
-    def train(self,
+    def train(
+              self,
               dialog_data: pd.DataFrame,
               limit_samples: int = -1,
               tf_verbosity: int = 2,
@@ -410,20 +425,22 @@ class ConSent:
         assert isinstance(self.config.learning_rate, float), \
             f"Invalid learning_rate ({self.config.learning_rate})"
         self.model.compile(
-            loss='categorical_crossentropy', loss_weights=[1, 1],
-            optimizer=tf.keras.optimizers.Adam(\
+            loss={'sent_output': 'categorical_crossentropy', 'consent_output': 'categorical_crossentropy'},
+            loss_weights={'sent_output': 1, 'consent_output': 1},
+            optimizer=tf.keras.optimizers.Adam(
                                     learning_rate=self.config.learning_rate),
-            metrics=[tf.keras.metrics.CategoricalAccuracy(name='accuracy'),
-                     tfa.metrics.CohenKappa(num_classes=labels.shape[1],
-                                            name='kappa'),
-                     tfa.metrics.F1Score(num_classes=labels.shape[1],
-                                         average='micro')]
+            metrics={
+                'sent_output': [tf.keras.metrics.CategoricalAccuracy(name='accuracy')],
+                'consent_output': [tf.keras.metrics.CategoricalAccuracy(name='accuracy')]
+            }
         )
         # Split training data into train+val sets
         train_data, val_data = utils.train_val_sampler(
             texts, contexts, labels,
-            limit_training_samples = limit_samples,
-            batch_size = self.config.batch_size,
+            contextual_size=contexts.shape[1],
+            output_size=labels.shape[1],
+            limit_training_samples=limit_samples,
+            batch_size=self.config.batch_size,
             random_state=self.random_state
         )
         # Set callbacks
@@ -432,7 +449,7 @@ class ConSent:
             callbacks.append(
                 tf.keras.callbacks.EarlyStopping(monitor='val_loss',
                                          patience=self.config.callback_patience,
-                                         restore_best_weights=False)
+                                         restore_best_weights=True)
             )
         if self.config.wandb_project:
             self.setup_wandb()
@@ -503,7 +520,8 @@ class ConSent:
         return self
 
 
-    def predict_proba(self,
+    def predict_proba(
+                      self,
                       dialog_id: str,
                       username: str,
                       text: str):
@@ -567,7 +585,7 @@ class ConSent:
         return self.onehot_encoder.inverse_transform(probs)[0][0]
 
 
-    def predict_sequence(self, dialog_data: List[Message]) -> List[Message]:
+    def predict_sequence(self, dialog_id: str, dialog_data: pd.DataFrame) -> List[Message]:
         """
         Generates prediction of sent_code and consent_code of one particular
         sequence of messages (dialog_data of one dialog_id).
@@ -575,7 +593,7 @@ class ConSent:
         `predict_proba`.
 
         Args:
-            dialog_data (List[Message], pd.DataFrame): Data of only *one*
+            dialog_data (List[Message], pd.DataFrame): Data of only *one* 
                 dialog, with at least the attributes `text`, `username`,
                 `dialog_id`. If metrics evaluations are being made using
                 the output of this function, the `code` attribute should also
@@ -585,15 +603,12 @@ class ConSent:
             dialog_data (List[Message]): Data with more attributes, referring
                 the predicted codes (`sent_code` and `consent_code`).
         """
-        assert pd.DataFrame(dialog_data)['dialog_id'].nunique() == 1 , \
-            "predict_sequence does only support sequenced predictions on " + \
-            "messages of the same dialog_id. If you need to have results " + \
-            "from multiple dialog_ids, use this fuction as follows: " + \
-            "dialog_data.groupby('dialog_id').apply(consent.predict_sequence)"+\
-            ". In this case, we assume type(dialog_data) is a pd.DataFrame."
         # Parse DataFrame as dialog_data
         if type(dialog_data) == pd.DataFrame:
             dialog_data = dialog_data.to_dict(orient="records")
+            # Add dialog_id to each message dictionary
+            for message in dialog_data:
+                message['dialog_id'] = dialog_id
 
         # Validate dialog_data
         DialogValidator(dialog_data=dialog_data)
@@ -602,7 +617,7 @@ class ConSent:
         for i, message in enumerate(dialog_data):
             # Generate predictions, append to results
             probas = self.predict_proba(
-                dialog_id=message['dialog_id'],
+                dialog_id=dialog_id, # Use the passed dialog_id
                 username=message['username'],
                 text=message['text']
             )
@@ -614,4 +629,38 @@ class ConSent:
         return results
 
 
-#
+    def test(self, dialog_data: pd.DataFrame):
+        """
+        Test the model on unseen data and log metrics to wandb.
+
+        Args:
+            dialog_data (pd.DataFrame): Data of all dialogs, with the columns
+                'dialog_id', 'username', 'text', 'code'.
+        """
+        from sklearn.metrics import cohen_kappa_score, f1_score
+
+        # Get predictions
+        preds = dialog_data.groupby('dialog_id').apply(
+            lambda group: self.predict_sequence(group.name, group),
+            include_groups=False
+        )
+        preds = pd.concat(preds.apply(pd.DataFrame).values).reset_index(drop=True)
+
+        # Get true and predicted labels
+        true_labels = preds['code']
+        pred_labels = preds['consent_code']
+
+        # Calculate metrics
+        kappa = cohen_kappa_score(true_labels, pred_labels)
+        f1 = f1_score(true_labels, pred_labels, average='micro')
+
+        print(f"Cohen's Kappa: {kappa}")
+        print(f"F1 Score (micro): {f1}")
+
+        # Log metrics to wandb
+        if self.config.wandb_project:
+            if not self.wandb_run:
+                self.setup_wandb()
+            wandb.log({'test_cohen_kappa': kappa, 'test_f1_score': f1})
+
+        return kappa, f1

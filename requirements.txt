@@ -3,11 +3,12 @@ tqdm
 openpyxl
 pandas
 scikit-learn
+numpy<2.0
 matplotlib
 seaborn
 pydantic==1.9
-tensorflow==2.5.0
-tensorflow-text==2.5.0
+tensorflow==2.19.1
+tensorflow-text==2.19.0
 tensorflow-hub
-tensorflow_addons
 wandb==0.12.11
+protobuf<=3.20.3
