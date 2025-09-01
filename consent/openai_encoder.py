@@ -12,14 +12,17 @@ class OpenAIEncoder(tf.keras.layers.Layer):
         self.embedding_dim = 1536
 
     def _get_embeddings(self, inputs):
-        embeddings = []
-        for text_tensor in inputs:
-            text = text_tensor.numpy().decode('utf-8')[:140]
-            response = self.client.embeddings.create(
-                input=text,
-                model=self.model_name
-            )
-            embeddings.append(response.data[0].embedding)
+        # Convert the TensorFlow tensor of strings to a Python list of strings
+        texts = [t.numpy().decode('utf-8')[:140] for t in inputs]
+        
+        # Send the entire list of texts to OpenAI in a single API call
+        response = self.client.embeddings.create(
+            input=texts,  # Pass the list of texts
+            model=self.model_name
+        )
+        
+        # Extract embeddings for each text in the batch
+        embeddings = [data.embedding for data in response.data]
         return np.array(embeddings, dtype=np.float32)
 
     def call(self, inputs):

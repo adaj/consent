@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='consent',
-    version='0.1.4',
+    version='0.2.0',
     description='Automated coding of chats using contextual information and sentence encoding',
     author='Adelson de Araujo',
     license='MIT',
@@ -14,12 +14,12 @@ setup(
         'scikit-learn',
         'matplotlib',
         'openpyxl',
-        'tensorflow==2.5.0',
+        'tensorflow==2.19.1',
         'tensorflow-text',
         'tensorflow-hub',
-        'tensorflow_addons',
-        'wandb==0.12.11',
+        'wandb==0.21.3',
         'fire',
-        'tqdm'
+        'tqdm',
+        'python-dotenv'
     ]
 )

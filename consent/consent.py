@@ -17,7 +17,7 @@ import tensorflow as tf
 import tensorflow_text
 import tensorflow_hub as hub
 import wandb
-from wandb.keras import WandbCallback
+from wandb.integration.keras import WandbMetricsLogger
 
 import consent.utils as utils
 from consent.openai_encoder import OpenAIEncoder
@@ -88,7 +88,7 @@ class Config(BaseModel):
       'augmentation', 'n_samples', 'max_epochs', 'callback_patience',
       'learning_rate', 'batch_size'
     ]
-    architecture: str = "consent==0.1.4"
+    architecture: str = "consent"
     caller: str = "train"
     datasets: List[str] = []
     dataset_name: str
@@ -104,7 +104,7 @@ class Config(BaseModel):
     consent_hl_units: Union[int, List[int]] = 32
     lags: Union[int, List[int]] = 4
     augmentation: Union[dict, bool, List] = False
-    n_samples: Optional[int]
+    n_samples: Optional[int] = None
     max_epochs: int = 50
     callback_patience: int = 10
     learning_rate: Union[float, List[float]] = 1e-3
@@ -150,7 +150,7 @@ class HubWrapper(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config()
         config.update({
-            "featurizer_url": self.hub_layer.handle
+            "featurizer_url": self.hub_layer._handle
         })
         return config
 
@@ -192,7 +192,8 @@ class ConSent:
         self.random_state = random_state
         if load:
             assert os.path.isdir(load), "Trained model was not found."
-            self.model = tf.keras.models.load_model(load, custom_objects={'HubWrapper': HubWrapper})
+            model_path = Path(load) / f"{Path(load).name}.h5"
+            self.model = tf.keras.models.load_model(str(model_path), custom_objects={'HubWrapper': HubWrapper})
         else:
             self.model = None
         # Prepare inputs and labels
@@ -284,7 +285,7 @@ class ConSent:
                                            kernel_initializer=initializer,
                                            activation='relu',
                                            name="consent_hl")(branch_concat)
-        consent_hl_dropout = tf.keras.layers.Dropout(.5)(consent_hl)
+        consent_hl_dropout = tf.keras.layers.Dropout(0.2)(consent_hl)
 
         # Dense final output
         consent_output = tf.keras.layers.Dense(output_size,
@@ -303,13 +304,17 @@ class ConSent:
         dialog_data samples.
         """
         texts = dialog_data['text'].values.astype(str)
+        # Calculate 'from_same_user' within each dialog
+        from_same_user = dialog_data.groupby('dialog_id')['username'].transform(
+            lambda x: (x == x.shift()).astype(int)
+        ).values.reshape(-1,1)
+
         contexts = np.concatenate([
             # 1. Contains question mark?
             dialog_data['text'].apply(lambda x: ('?' in x))
                 .astype(int).values.reshape(-1,1),
             # 2. It's from the same user?
-            (dialog_data['username']==dialog_data['username'].shift())
-                .astype(int).values.reshape(-1,1),
+            from_same_user, # Use the correctly calculated feature
             # 3. What were the (predicted) previous codes?
             self.extract_previous_codes_by_dialog_id(dialog_data)
         ], axis=1).astype(np.float32)
@@ -336,6 +341,7 @@ class ConSent:
                                         lags=self.config.lags), include_groups=False)\
                                     .apply(self.onehot_encode, axis=1)\
                                     .apply(np.ravel)
+        return np.stack(previous_codes)
         return np.stack(previous_codes)
 
 
@@ -462,11 +468,7 @@ class ConSent:
         if self.config.wandb_project:
             self.setup_wandb()
             callbacks.append(
-                WandbCallback(monitor="val_consent_output_kappa",
-                              mode='max',
-                              save_model=False,
-                              validation_data=val_data,
-                              labels=self.config.codes)
+                WandbMetricsLogger(),
             )
         # Model fit
         self.model.fit(
@@ -477,10 +479,16 @@ class ConSent:
             callbacks=callbacks
         )
         if save_model:
-            Path(os.path.dirname(save_model))\
-                .mkdir(parents=True, exist_ok=True)
-            self.model.save(save_model)
-            with open(os.path.join(save_model, "config.json"), "w+") as f:
+            model_dir = Path(save_model) # Treat save_model as the directory name
+            model_dir.mkdir(parents=True, exist_ok=True) # Create the directory
+
+            # Save the Keras model as an .h5 file inside the created directory
+            model_path = model_dir / f"{model_dir.name}.h5"
+            self.model.save(str(model_path))
+
+            # Save the config.json inside the created directory
+            config_path = model_dir / "config.json"
+            with open(str(config_path), "w+") as f:
                 json.dump(self.config.__dict__, f, ensure_ascii=False, indent=4)
         return self
 

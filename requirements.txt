@@ -10,7 +10,8 @@ pydantic==1.9
 tensorflow==2.19.1
 tensorflow-text==2.19.0
 tensorflow-hub
-wandb==0.12.11
+wandb==0.21.3
 protobuf<=3.20.3
 openai
 tiktoken
+python-dotenv
